@@ -20,8 +20,8 @@ mkdir -p $DistDir
 
 
 ### 初始化mysql数据
-mysql_user="root"
-mysql_password="3306"
+mysql_user="mhy"
+mysql_password="localhost"
 mysql_db="movie_analyse"
 mysql -u$mysql_user -p$mysql_password -D$mysql_db -e "source $BaseDir/src/main/resources/init.sql"
 mysql -u$mysql_user -p$mysql_password -D$mysql_db -e "load data infile '$BaseDir/ml-latest/movies.csv' into table student character set utf8 fields terminated by ',' optionally enclosed by '"' escaped by '"'
