@@ -1,1 +1,3 @@
 rootProject.name = 'w3'
+include 'tasks'
+
