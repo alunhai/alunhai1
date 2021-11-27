@@ -41,7 +41,7 @@ public class ChartService {
     this.resultBase = "/analyse";
     this.fs = fs;
     process = null;
-    calStat = new AtomicInteger(1);
+    calStat = new AtomicInteger(-1);
   }
 
   public void resetStat() {

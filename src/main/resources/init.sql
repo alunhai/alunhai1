@@ -19,6 +19,8 @@ create table `manage_user` (
     isAdmin bool default 0 comment '是否是管理员'
 );
 
+insert into `manage_user` (username, password, isAdmin) values ('admin', 'admin123', true);
+
 create table `movie` (
     id bigint auto_increment primary key,
     title varchar(1024),

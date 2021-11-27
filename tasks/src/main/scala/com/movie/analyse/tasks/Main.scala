@@ -10,7 +10,7 @@ object Main {
     .getOrCreate()
   protected lazy val spark: SparkSession = SparkSession
     .builder()
-    .appName("Spark SQL basic example")
+    .appName("Main")
     .config("spark.some.config.option", "some-value")
     .getOrCreate()
 
@@ -19,8 +19,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     t = args(0).toLong
     val props = new Properties()
-    props.put("username", "bytedance")
-    props.put("password", "bytedance")
+    props.put("username", System.getenv("MYSQL_USER"))
+    props.put("password", System.getenv("MYSQL_PASSWORD"))
     val jdbcUrl = "jdbc:mysql://localhost:3306/movie_analyse"
 
     val userDf = spark.read.jdbc(jdbcUrl, "user", props)

@@ -22,6 +22,12 @@ public class UserController extends BaseController<User>{
   }
 
   @Override
+  @PostMapping("/users")
+  public ResponseEntity<User> create(@RequestBody User user) {
+    return super.create(user);
+  }
+
+  @Override
   @PutMapping("/users")
   public ResponseEntity<User> update(@RequestBody User user) {
     return super.update(user);

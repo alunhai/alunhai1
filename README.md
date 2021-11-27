@@ -1,10 +1,18 @@
 ## 安装步骤
 
-### 自行安装
+### 准备
 某些基础设施无法或者没有写在安装脚本中，需要自行安装
 - mysql or mariadb
 - node
 - npm
+
+下载项目
+```shell
+git clone https://github.com/alunhai/alunhai1.git
+cd alunhai1
+```
+
+将数据集ml-latest解压到项目根目录alunhai1下
 
 ### 脚本安装
 使用脚本可以配置绝大部分环境
@@ -33,3 +41,4 @@ curl http://localhost:5000/movie-analyser/init?type=user
 ```shell
 cd webui && npm install && npm run serve -- --port 3000
 ```
+初始登录用户(admin/admin123)

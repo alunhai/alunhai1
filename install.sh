@@ -66,11 +66,14 @@ if [ ! -d $hadoop_name ];then
 fi
 
 ### 初始化mysql
-mysql_user="bytedance"
-mysql_password="bytedance"
+mysql_user="root"
+mysql_password="3306"
 mysql_db="movie_analyse"
 mysql -u$mysql_user -p$mysql_password -e "create database if not exists $mysql_db"
 mysql -u$mysql_user -p$mysql_password -D$mysql_db -e "source $BaseDir/src/main/resources/init.sql"
+
+echo export MYSQL_USER="${mysql_user}" >> $ENV_FILE
+echo export MYSQL_PASSWORD="${mysql_password}" >> $ENV_FILE
 
 $HADOOP_HOME/bin/hdfs dfs -put $BaseDir/ml-latest /
 

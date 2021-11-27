@@ -1,14 +1,15 @@
 <template>
   <div class="root">
     <el-container v-if="!user.login">
-      <el-header height="200px"> </el-header>
+      <el-header height="200px"> 
+      </el-header>
       <el-container>
         <el-main>
           <el-form label-width="120px" size="medium">
             <el-row>
               <el-col :span="5" :offset="6">
                 <el-form-item label="用户名" required>
-                  <el-input v-model="user.name" />
+                  <el-input v-model="user.username" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -65,13 +66,12 @@
         </div>
         <div v-if="location == '2-1'">
           <div>
-            <el-button @click="userAdd">添加</el-button>
-            <el-button @click="userEdit">修改</el-button>
-            <el-button @click="userDelete">删除</el-button>
+            <el-button @click="editUserAct = 'add';editUserActOn=true">添加</el-button>
+            <el-button @click="editUserAct = 'edit';editUserActOn=true">修改</el-button>
             <el-table
               ref="user"
               highlight-current-row
-              @row-click="handleSelectUser"
+              @current-change="handleSelectUser"
               :data="appUsers.items"
               style="width: 100%"
             >
@@ -88,17 +88,79 @@
               :total="appUsers.pageTotal"
               @current-change="listAppUsers"
             ></el-pagination>
+            <el-dialog v-model="editUserActOn" title="Shipping address">
+              <el-form label-position="left" label-width="120px">
+                <el-form-item label="ID">
+                  <el-input v-model="editUser.id" disabled/>
+                </el-form-item>
+                <el-form-item label="性别">
+                <el-col>
+                  <el-select v-model="editUser.gender" placeholder="Select">
+                    <el-option label="Male" value="M" />
+                    <el-option label="Female" value="F" />
+                  </el-select>
+                </el-col>
+                </el-form-item>
+                <el-form-item label="年龄">
+                <el-col>
+                  <el-select v-model="editUser.age" placeholder="Select">
+                    <el-option label="under 18" value="1" />
+                    <el-option label="18-24" value="18" />
+                    <el-option label="25-34" value="25" />
+                    <el-option label="35-44" value="35" />
+                    <el-option label="45-49" value="45" />
+                    <el-option label="50-55" value="50" />
+                    <el-option label="56+" value="56" />
+                  </el-select>
+                </el-col>
+                </el-form-item>
+                <el-form-item label="职业">
+                <el-col>
+                  <el-select v-model="editUser.occupation" placeholder="Select">
+                    <el-option label="other or not specified" value="0" />
+                    <el-option label="academic/educator" value="1" />
+                    <el-option label="artist" value="2" />
+                    <el-option label="clerical/admin" value="3" />
+                    <el-option label="college/grad student" value="4" />
+                    <el-option label="customer service" value="5" />
+                    <el-option label="doctor/health care" value="6" />
+                    <el-option label="executive/managerial" value="7" />
+                    <el-option label="farmer" value="8" />
+                    <el-option label="homemaker" value="9" />
+                    <el-option label="K-12 student" value="10" />
+                    <el-option label="lawyer" value="11" />
+                    <el-option label="programmer" value="12" />
+                    <el-option label="retired" value="13" />
+                    <el-option label="sales/marketing" value="14" />
+                    <el-option label="scientist" value="15" />
+                    <el-option label="self-employed" value="16" />
+                    <el-option label="technician/engineer" value="17" />
+                    <el-option label="tradesman/craftsman" value="18" />
+                    <el-option label="unemployed" value="19" />
+                    <el-option label="writer" value="20" />
+                  </el-select>
+                </el-col>
+                </el-form-item>
+                <el-form-item label="zipCode">
+                  <el-input v-model="editUser.zipCode" />
+                </el-form-item>
+              </el-form>
+              <el-button-group>
+                  <el-button type="primary" @click="userAct">确定</el-button> &nbsp;&nbsp;
+                  <el-button type="primary" @click="editUserActOn=false;editUserAct=null">取消</el-button>
+              </el-button-group>
+            </el-dialog>
           </div>
         </div>
         <div v-if="location == '2-2'">
           <div>
-            <el-button @click="userAdd">添加</el-button>
-            <el-button @click="userEdit">修改</el-button>
-            <el-button @click="userDelete">删除</el-button>
+            <el-button @click="editManageUserAct='add';editManageUserActOn=true">添加</el-button>
+            <el-button @click="editManageUserAct='edit';editManageUserActOn=true">修改</el-button>
+            <el-button @click="editManageUserAct='delete';manageUserAct()">删除</el-button>
             <el-table
               ref="user"
               highlight-current-row
-              @row-click="handleSelectUser"
+              @current-change="handleSelectManageUser"
               :data="manageUsers.items"
               style="width: 100%"
             >
@@ -113,6 +175,31 @@
               :total="manageUsers.pageTotal"
               @current-change="listManageUsers"
             ></el-pagination>
+            <el-dialog v-model="editManageUserActOn" title="管理用户修改">
+              <el-form label-position="left" label-width="120px">
+                <el-form-item label="ID">
+                  <el-input v-model="editManageUser.id" disabled />
+                </el-form-item>
+                <el-form-item label="用户名">
+                  <el-input v-model="editManageUser.username" :disabled="!user.isAdmin" />
+                </el-form-item>
+                <el-form-item label="密码">
+                  <el-input v-model="editManageUser.password" type="password" :show-password="user.isAdmin" :disabled="!user.isAdmin" />
+                </el-form-item>
+                <el-form-item label="职业">
+                <el-col>
+                  <el-select v-model="editUser.occupation" placeholder="Select" :disabled="!user.isAdmin">
+                    <el-option value="true" />
+                    <el-option value="false" />
+                  </el-select>
+                </el-col>
+                </el-form-item>
+              </el-form>
+              <el-button-group>
+                  <el-button type="primary" @click="manageUserAct">确定</el-button> &nbsp;&nbsp;
+                  <el-button type="primary" @click="editManageUserActOn=false;editManageUserAct=null">取消</el-button>
+              </el-button-group>
+            </el-dialog>
           </div>
         </div>
       </el-main>
@@ -141,9 +228,10 @@ export default {
     return {
       location: "1-1",
       user: {
-        login: true,
-        name: null,
-        password: null
+        login: false,
+        username: "",
+        password: "",
+        isAdmin: false
       },
       chart: {
         wait: false
@@ -162,7 +250,25 @@ export default {
       },
       itv: null,
       myChart: null,
-      chartHeight: 300
+      chartHeight: 300,
+      editUserActOn: false,
+      editUserAct: null,
+      editUser: {
+        id: 0,
+        gender: "F",
+        age: "",
+        occupation: "",
+        zipCode: ""
+      },
+      editManageUserActOn: false,
+      editManageUserAct: null,
+      editManageUser: {
+        id: 0,
+        username: "",
+        password: "",
+        isAdmin: ""
+      }
+
     }
   },
   methods: {
@@ -248,6 +354,114 @@ export default {
           }
         });
     },
+    handleSelectUser(e) {
+      if(e != null){
+        this.editUser.id = e.id
+        this.editUser.gender = e.gender
+        this.editUser.age = e.age
+        this.editUser.occupation = e.occupation
+        this.editUser.zipCode = e.zipCode
+        console.log("select ", this.editUser)
+      }
+    },
+    userAct() {
+      if(this.editUserAct == "add") {
+        const param = {
+          "gender": this.editUser.gender,
+          "age": this.editUser.age,
+          "occupation": this.editUser.occupation,
+          "zipCode": this.editUser.zipCode
+        }
+        const url = baseUrl + "/users"
+        axios.post(url, param).then(res => {
+          if(!this.showErrors(res)) {
+            this.editUserAct = null
+            this.editUserActOn = false
+          }
+          this.listAppUsers()
+        })
+      } else if(this.editUserAct == 'edit') {
+        const param = {
+          "id": this.editUser.id,
+          "gender": this.editUser.gender,
+          "age": this.editUser.age,
+          "occupation": this.editUser.occupation,
+          "zipCode": this.editUser.zipCode
+        }
+        const url = baseUrl + "/users"
+        axios.put(url, param).then(res => {
+          if(!this.showErrors(res)) {
+            this.editUserAct = null
+            this.editUserActOn = false
+          }
+          this.listAppUsers()
+        })
+      }
+    },
+    handleSelectManageUser(e) {
+      if(e != null){
+        this.editManageUser.id = e.id
+        this.editManageUser.username = e.username
+        this.editManageUser.password = e.password
+        this.editManageUser.isAdmin = e.isAdmin
+      }
+    },
+    manageUserAct() {
+      if(this.editManageUserAct == "add") {
+        const param = {
+          "username": this.editManageUser.username,
+          "password": this.editManageUser.password,
+          "isAdmin": this.editManageUser.isAdmin,
+        }
+        const url = baseUrl + "/manage-users"
+        axios.post(url, param).then(res => {
+          if(!this.showErrors(res)) {
+            this.editManageUserActOn = false
+            this.editManageUserAct = null
+          }
+          this.listManageUsers()
+        })
+      } else if(this.editManageUserAct == "edit") {
+        const param = {
+          "id": this.editManageUser.id,
+          "username": this.editManageUser.username,
+          "password": this.editManageUser.password,
+          "isAdmin": this.editManageUser.isAdmin,
+        }
+        const url = baseUrl + "/manage-users"
+        axios.put(url, param).then(res => {
+          if(!this.showErrors(res)) {
+            this.editManageUserActOn = false
+            this.editManageUserAct = null
+          }
+          this.listManageUsers()
+        })
+      } else if(this.editManageUserAct == "delete") {
+        const url = baseUrl + "/manage-users/" + this.editManageUser.id
+        axios.delete(url).then(res => {
+          if(!this.showErrors(res)) {
+            this.editManageUserActOn = false
+            this.editManageUserAct = null
+          }
+          this.listManageUsers()
+        })
+      }
+    },
+    login() {
+      const url = baseUrl + "/manage-users/login"
+      const param = {
+        "username" : this.user.username,
+        "password" : this.user.password
+      }
+      axios.post(url, param).then(res => {
+        if(!this.showErrors(res)) {
+          this.user.login = true
+          this.user.username = res.data['obj']['username']
+          this.user.password = res.data['obj']['password']
+          this.user.isAdmin = res.data['obj']['isAdmin']
+        }
+      })
+    },
     showErrors(res) {
       if (res.status != 200) {
         this.showError(res.statusText);
@@ -266,7 +480,7 @@ export default {
         message: text,
         type: "error",
       });
-    },
+    }
   }
 }
 </script>

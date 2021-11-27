@@ -22,7 +22,7 @@ public class MovieController extends BaseController<Movie>{
 
   @Override
   @PostMapping("/movies")
-  public ResponseEntity<Movie> create(Movie movie) {
+  public ResponseEntity<Movie> create(@RequestBody Movie movie) {
     return super.create(movie);
   }
 
