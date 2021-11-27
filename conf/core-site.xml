@@ -19,7 +19,8 @@
 <configuration>
    <property>
        <name>hadoop.tmp.dir</name>
-       <value>file:/home/mhy/software/tmp/hdfs</value>
+       <value>file:${HADOOP_HOME}/tmp</value>
+<!--       <value>file:/home/mhy/software/tmp/hdfs</value>-->
        <description>Abase for other temporary directories.</description>
    </property>
    <property>

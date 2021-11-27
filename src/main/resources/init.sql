@@ -24,26 +24,3 @@ create table `movie` (
     title varchar(1024),
     genres varchar(1024)
 );
-
-create table `rating` (
-    id bigint auto_increment primary key comment 'id',
-    userId bigint not null,
-    movieId bigint not null,
-    rating double not null,
-    `timestamp` bigint not null
-);
-
-create table `rating_view` (
-    userId bigint not null,
-    movieId bigint not null,
-    rating double not null,
-    `timestamp` bigint not null
-);
-
-create table `tag` (
-    id bigint auto_increment primary key comment 'id',
-    userId bigint not null,
-    movieId bigint not null,
-    tag varchar(1024) not null,
-    `timestamp` bigint not null
-);

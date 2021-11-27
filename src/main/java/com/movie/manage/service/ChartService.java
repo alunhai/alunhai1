@@ -7,10 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,7 @@ public class ChartService {
   private final String resultBase;
   private final FileSystem fs;
   private Process process;
-  private long qid;
+  private long qid = 1638017719100L;
   private volatile AtomicInteger calStat;
 
   @Autowired
@@ -39,7 +41,7 @@ public class ChartService {
     this.resultBase = "/analyse";
     this.fs = fs;
     process = null;
-    calStat = new AtomicInteger(-1);
+    calStat = new AtomicInteger(1);
   }
 
   public void resetStat() {
@@ -67,12 +69,12 @@ public class ChartService {
     // 先检查子进程
     if (process.isAlive()) {
       logger.info("process for {} is running", qid);
+      clearProcess();
       return;
     }
     int status = process.exitValue();
     if (status != 0) {
-      String error = CharStreams.toString(new InputStreamReader(process.getErrorStream()));
-      throw new Exception(error);
+      throw new Exception("process error");
     }
 
     // 再检查hdfs文件是否写成功
@@ -89,7 +91,13 @@ public class ChartService {
     calStat.compareAndSet(0, 1);
   }
 
-  public List<Triplet> readQueryResult(String name) throws Exception {
+  public List<Triplet> readQueryResult(String name, boolean force) throws Exception {
+    if(force) {
+      if(calStat.get() == 0 && process != null && process.isAlive()) {
+        process.destroy();
+      }
+      calStat.set(-1);
+    }
     if(calStat.compareAndSet(-1, 0)) {
       submitTask();
       return null;
@@ -119,4 +127,28 @@ public class ChartService {
     return triplets;
   }
 
+  public void clearProcess() throws IOException {
+    if(this.process != null && process.isAlive()) {
+      InputStream stdout = process.getInputStream();
+      InputStream stderr = process.getErrorStream();
+      BufferedReader br = new BufferedReader(new InputStreamReader(stderr));
+      String s;
+      while ((s = br.readLine()) != null) {
+        logger.error(s);
+      }
+      br = new BufferedReader(new InputStreamReader(stdout));
+      while ((s = br.readLine()) != null) {
+        logger.info(s);
+      }
+    }
+  }
+
+  @Scheduled(fixedRate = 30000)
+  public void clearProcessS() {
+    try {
+      clearProcess();
+    } catch (IOException e) {
+      logger.error("", e);
+    }
+  }
 }

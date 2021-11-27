@@ -61,7 +61,7 @@
         </el-menu>
       </el-aside>
       <el-main>
-        <div v-if="location.startsWith('1-')" id="chart" v-loading="chart.wait">
+        <div v-if="location.startsWith('1-')" id="chart" v-loading="chart.wait" :style="{height: chartHeight + 'px'}">
         </div>
         <div v-if="location == '2-1'">
           <div>
@@ -75,7 +75,7 @@
               :data="appUsers.items"
               style="width: 100%"
             >
-              <el-table-column prop="id" label="ID" width="600" />
+              <el-table-column prop="id" label="ID" width="100" />
               <el-table-column prop="gender" label="性别" />
               <el-table-column prop="ageDesc" label="年龄" />
               <el-table-column prop="occDesc" label="职业" />
@@ -159,7 +159,10 @@ export default {
         pageNo: 1,
         pageSize: 20,
         pageTotal: 0,
-      }
+      },
+      itv: null,
+      myChart: null,
+      chartHeight: 300
     }
   },
   methods: {
@@ -171,22 +174,52 @@ export default {
        this.listManageUsers()
      } else if(this.location.startsWith("1-")) {
         console.log(e)
-        this.getChartData(nameMapping[this.location])
+        this.chartHeight = 300
+        this.queryData(nameMapping[this.location])
      }
     },
+    queryData(name) {
+      const func = this.getChartData
+      this.chart.wait = true
+      this.itv = window.setInterval(function(){
+        func(name)
+      }, 10*1000)
+    },
     getChartData(name) {
-      const myChart = echarts.init(document.getElementById('chart'));
-      const url=baseUrl + "/charts?type="+name
+      const func = this.initChart
+      const url = baseUrl + "/charts?type=" + name
       axios.get(url).then(res=>{
+        console.log(res)
         if(!this.showErrors(res)) {
-          console.log(res.data)
           if(res.data['obj'] == null){
             this.chart.wait = true
           } else {
-            myChart.setOption(res.data['obj'])
+            this.chart.wait = false
+            window.clearInterval(this.itv)
+            console.log(res.data['obj'])
+            func(res.data['obj'])
           }
-        } 
+        }else {
+          window.clearInterval(this.itv)
+        }
       })
+    },
+    initChart(options) {
+      if(this.myChart != null) {
+        this.myChart.dispose()
+      }
+      this.myChart = echarts.init(document.getElementById('chart'));
+      const numLabels = options['yAxis']['data'].length
+      const numSeries = options['series'].length
+      this.chartHeight = numSeries * numLabels * 20 + numLabels * 20
+      console.log(numLabels, numSeries, this.chartHeight)
+      const t=this
+      window.setTimeout(()=>{
+        t.myChart.resize({
+          height: t.chartHeight
+        })
+        t.myChart.setOption(options)
+      }, 1000);
     },
     listAppUsers() {
       this.listByPage(this.appUsers, "users")

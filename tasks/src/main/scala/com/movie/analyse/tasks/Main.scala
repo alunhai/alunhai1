@@ -19,8 +19,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     t = args(0).toLong
     val props = new Properties()
-    props.put("username", "mhy")
-    props.put("password", "localhost")
+    props.put("username", "bytedance")
+    props.put("password", "bytedance")
     val jdbcUrl = "jdbc:mysql://localhost:3306/movie_analyse"
 
     val userDf = spark.read.jdbc(jdbcUrl, "user", props)
@@ -55,7 +55,7 @@ object Main {
   def byGender(): Unit = {
     val df = spark sql
       """
-        |select category, gender, avg(rating) as rate_avg from wtd lateral view explode(split(genres,'|')) as category
+        |select category, gender, avg(rating) as rate_avg from wtd lateral view explode(split(genres,'\\|')) as category
         |group by category, gender
         |""".stripMargin
     df.write.csv(s"hdfs://localhost:9000/analyse/gender-$t.csv")
@@ -64,7 +64,7 @@ object Main {
   def byAge(): Unit = {
     val df=spark sql
       """
-        |select category, age, avg(rating) as rate_avg from wtd lateral view explode(split(genres,'|')) as category
+        |select category, age, avg(rating) as rate_avg from wtd lateral view explode(split(genres,'\\|')) as category
         |group by category, age
         |""".stripMargin
     df.write.csv(s"hdfs://localhost:9000/analyse/age-$t.csv")
@@ -73,7 +73,7 @@ object Main {
   def byOccupation(): Unit = {
     val df=spark sql
       """
-        |select category, occupation, avg(rating) as rate_avg from wtd lateral view explode(split(genres,'|')) as category
+        |select category, occupation, avg(rating) as rate_avg from wtd lateral view explode(split(genres,'\\|')) as category
         |group by category, occupation
         |""".stripMargin
     df.write.csv(s"hdfs://localhost:9000/analyse/occupation-$t.csv")
@@ -82,7 +82,7 @@ object Main {
   def byZipCode(): Unit = {
     val df=spark sql
       """
-        |select category, zipCode, avg(rating) as rate_avg from wtd lateral view explode(split(genres,'|')) as category
+        |select category, zipCode, avg(rating) as rate_avg from wtd lateral view explode(split(genres,'\\|')) as category
         |group by category, zipCode
         |""".stripMargin
     df.write.csv(s"hdfs://localhost:9000/analyse/zipcode-$t.csv")
