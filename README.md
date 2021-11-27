@@ -10,6 +10,7 @@
 ```shell
 git clone https://github.com/alunhai/alunhai1.git
 cd alunhai1
+git checkout product
 ```
 
 将数据集ml-latest解压到项目根目录alunhai1下
