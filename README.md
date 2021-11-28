@@ -17,6 +17,7 @@ cd alunhai1
 ### 脚本安装
 使用脚本可以配置绝大部分环境
 ```shell
+安装证书： yum install ca-certificates
 sh install.sh
 ```
 验证：
