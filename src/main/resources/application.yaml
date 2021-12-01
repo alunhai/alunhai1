@@ -11,8 +11,8 @@ spring.datasource:
   type: com.zaxxer.hikari.HikariDataSource
   driver-class-name: com.mysql.cj.jdbc.Driver
   url: jdbc:mysql://localhost:3306/movie_analyse
-  username: bytedance
-  password: bytedance
+  username: username
+  password: password
   # 连接池
   hikari:
     #连接池名
